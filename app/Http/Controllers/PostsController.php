@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostFormRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PostsController extends Controller
@@ -30,7 +32,7 @@ class PostsController extends Controller
         //$posts = Post::get()->count();
 
         return view('blog.index', [
-            'posts' => Post::orderBy('updated_at', 'desc')->get()
+            'posts' => Post::orderBy('id', 'asc')->paginate(20)
         ]);
     }
 
@@ -45,7 +47,7 @@ class PostsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PostFormRequest $request)
     {
         /*         $post = new Post();
         $post->title = $request->title;
@@ -56,21 +58,23 @@ class PostsController extends Controller
         $post->min_to_read = $request->min_to_read;
         $post->save(); */
 
-        $request->validate([
-            'title' => 'required|unique:posts|max:255',
-            'excerpt' => 'required',
-            'body' => 'required',
-            'img_path' => ['required', 'mimes:png,jpg,jpeg', 'max:5048'],
-            'min_to_read' => 'min:0|max:60',
-        ]);
+        $request->validated();
 
-        Post::create([
+        $post = Post::create([
+            'user_id' => Auth::id(),
             'title' => $request->title,
             'excerpt' => $request->excerpt,
             'body' => $request->body,
             'img_path' => $this->storeImage($request),
             'is_published' => $request->is_published === 'on',
             'min_to_read' => $request->min_to_read,
+        ]);
+
+        $post->meta()->create([
+            'post_id' => $post->id,
+            'meta_description' => $request->meta_description,
+            'meta_keywords' => $request->meta_keywords,
+            'meta_robots' => $request->meta_robots,
         ]);
 
         return redirect(route('blog.index'));
@@ -99,15 +103,9 @@ class PostsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(PostFormRequest $request, string $id)
     {
-        $request->validate([
-            'title' => 'required|max:255|unique:posts,title',
-            'excerpt' => 'required',
-            'body' => 'required',
-            'img_path' => ['mimes:png,jpg,jpeg', 'max:5048'],
-            'min_to_read' => 'min:0|max:60',
-        ]);
+        $request->validated();
 
 
         Post::where('id', $id)->update($request->except([
@@ -122,7 +120,9 @@ class PostsController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        Post::destroy($id);
+
+        return redirect(route('blog.index'))->with('message', 'Post has been deleted');
     }
 
     private function storeImage($request)

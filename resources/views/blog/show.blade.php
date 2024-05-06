@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="description" content="{{ $post->meta->meta_descriptions ? $post->meta->meta_descriptions : '' }}" />
+    <meta name="keywords" content="{{ $post->meta->meta_keywords ? $post->meta->meta_keywords : '' }}" />
+    <meta name="robots" content="{{ $post->meta->meta_robots ? $post->meta->meta_robots : '' }}" />
     <title>
         Laravel App
     </title>
@@ -21,6 +24,7 @@
         <h4 class="text-left sm:text-center text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 py-10 sm:py-20">
             {{ $post->title }}
         </h4>
+
 
         <div class="block lg:flex flex-row">
             <div class="basis-9/12 text-center sm:block sm:text-left">

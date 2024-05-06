@@ -28,6 +28,18 @@
         </div>
     </div>
 
+    @if (session()->has('message'))
+        <div class="mx-auto w-4/5 pb-10">
+            <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                Warning
+            </div>
+            <div class="border border-t-1 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                {{ session()->get('message') }}
+            </div>
+
+        </div>
+    @endif
+
     @foreach ($posts as $post)
         <div class="w-4/5 mx-auto pb-10">
             <div class="bg-white pt-10 rounded-lg drop-shadow-2xl sm:basis-3/4 basis-full sm:mr-8 pb-10 sm:pb-0">
@@ -46,17 +58,30 @@
                         Made by:
                         <a href=""
                             class="text-green-500 italic hover:text-green-400 hover:border-b-2 border-green-400 pb-3 transition-all">
-                            Dary
+                            {{ $post->user->name }}
                         </a>
-                        on 13-07-2022
+                        on {{ $post->updated_at->format('d/m/Y') }}
                     </span>
 
                     <a href="{{ route('blog.edit', $post->id) }}"
                         class="block italic text-green-500 border-b-1 border-green-400">Edit</a>
+
+                    <form action="{{ route('blog.destroy', $post->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button class="pt-3 text-red-500 pr-3" type="submit">
+                            Delete
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     @endforeach
+
+    <div class="mx-auto pb-10 w-4/5">
+        {{ $posts->links() }}
+
+    </div>
 
 
 </body>
