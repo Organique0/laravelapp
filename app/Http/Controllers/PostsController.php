@@ -5,11 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PostFormRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class PostsController extends Controller
+class PostsController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth', only: ['create', 'edit', 'update', 'destroy']),
+        ];
+    }
     /**
      * Display a listing of the resource.
      */
